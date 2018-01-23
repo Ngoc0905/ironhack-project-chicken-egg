@@ -1,0 +1,20 @@
+1. Idea project: Chicken egg
+- simple, easy to play
+- still apply the lessons
+2. Design
+- canvas/background
+- nest
+- eggs
+- chicken
+3. Create 'egg'
+3.1. Egg object
+3.2  Egg movement
+3.3. Random fallen egg
+3.4. Bonus egg / Poison egg
+4. Create 'player'
+4.1 Player object
+4.2 Basket movement
+5. Game rules
+5.1 Missing / Game over
+5.2 Catch
+6. Score
