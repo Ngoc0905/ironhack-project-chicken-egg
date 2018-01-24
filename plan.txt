@@ -18,3 +18,5 @@
 5.1 Missing / Game over
 5.2 Catch
 6. Score
+7. Animation
+8. Music/sound
