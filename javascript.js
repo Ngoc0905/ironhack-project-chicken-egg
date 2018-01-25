@@ -13,6 +13,8 @@ window.onload = function () {
         imgWhiteEgg.src = "./images/whiteegg.png";
         var imgGoldEgg = new Image();
         imgGoldEgg.src = "./images/goldegg.png";
+        var imgBlackEgg = new Image();
+        imgBlackEgg.src = "./images/blackEgg.png";
         var imgChicken = new Image();
         imgChicken.src = "./images/chicken1.png";
         var imgChicken2 = new Image();
@@ -36,15 +38,15 @@ window.onload = function () {
                     true
                 ];
 
-                egg.eggs.forEach(function(e){
-                    if (e.y >= 150 && e.y < 200){
+                egg.eggs.forEach(function (e) {
+                    if (e.y >= 150 && e.y < 200) {
                         chicken[e.position - 1] = false;
                     }
                 });
 
-                chicken.forEach(function(p,index){
+                chicken.forEach(function (p, index) {
                     var img = p ? imgChicken : imgChicken2;
-                    ctx.drawImage(img, (index +1)*chickenX - 40,chickenY);
+                    ctx.drawImage(img, (index + 1) * chickenX - 40, chickenY);
                 });
             }
         };
@@ -104,7 +106,7 @@ window.onload = function () {
                 this.restartGame();
             }
         };
-        var egg = {      // eggConstructor
+        var egg = { // eggConstructor
             eggs: [],
             minSpeed: 1.5,
             gravity: 0.5,
@@ -113,10 +115,10 @@ window.onload = function () {
             height: 20,
             y: 150,
             createEgg: function () {
-                var randomPosition = Math.floor(Math.random()*5)+1;
+                var randomPosition = Math.floor(Math.random() * 5) + 1;
 
                 var eggColors = ['WhiteEgg', 'GoldEgg', 'BlackEgg'];
-                var possibilities = [0, 0, 0, 0, 0, 0, 1, 1, 1, 1];
+                var possibilities = [0, 0, 0, 0, 0, 0, 1, 1, 2, 2];
                 var randomPossibility = Math.floor(Math.random() * possibilities.length);
                 this.eggs.push({
                     id: this.eggId++,
@@ -129,10 +131,25 @@ window.onload = function () {
                     minSpeed: this.minSpeed
                 });
             },
+            draw: function () {
+                this.eggs.forEach(function (e) {
+                    if (e.color === "GoldEgg") {
+                        ctx.drawImage(imgGoldEgg, e.x, e.y);
+                    } else if (e.color === "BlackEgg") {
+                        ctx.drawImage(imgBlackEgg, e.x, e.y);
+                    } else {
+                        ctx.drawImage(imgWhiteEgg, e.x, e.y);
+                    }
+
+                });
+            },
             moveEgg: function (egg) {
                 egg.y += egg.minSpeed;
                 if (egg.y >= canvas.height - (player.height / 2) - egg.h)
                     this.check(egg);
+            },
+            move: function () {
+                this.eggs.forEach(this.moveEgg.bind(this));
             },
             moveEggFast: function (egg) {
                 egg.y += egg.maxSpeed;
@@ -141,22 +158,27 @@ window.onload = function () {
             },
             check: function (egg) {
                 //miss or caught
-                var caught = player.x + 20 <= egg.x && egg.x <= player.x + player.width - egg.w - 20;
-                if (!caught) {
-                    player.brokenEggs--;
-                    if (player.brokenEggs <= 0) {
-                        player.isGameOver = true;
-                        return 'Game over';
-                    }
-                } else {
-                    if ( egg.color === "WhiteEgg"){
+                var caught = player.x + 15 <= egg.x && egg.x <= player.x + player.width - egg.w - 15;
+                if (caught) {
+                    if (egg.color === "WhiteEgg") {
                         player.score++;
-                    } else if ( egg.color === "GoldEgg"){
-                        player.score +=3;
-                    } else {
-                        player.score --;
-                    }
-                    
+                    } else if (egg.color === "GoldEgg") {
+                        player.score += 3;
+                    } else if (egg.color === "BlackEgg") {
+                        player.score--;
+                        if (player.score < 0){
+                            player.isGameOver = true;
+                            return 'Game over'; 
+                        }
+                    } 
+                } else {
+                    if (egg.color !== 'BlackEgg') {
+                        player.brokenEggs--;
+                        if ( player.brokenEggs <= 0 ) {
+                            player.isGameOver = true;
+                            return 'Game over';
+                        }
+                    } 
                 }
 
                 for (let i = 0; i < this.eggs.length; i++) {
@@ -165,35 +187,21 @@ window.onload = function () {
                         break;
                     }
                 }
-            },
-            move: function () {
-                this.eggs.forEach(this.moveEgg.bind(this));
-            },
-            draw: function () {
-                this.eggs.forEach(function(e){
-                    if (e.color === "GoldEgg"){
-                        ctx.drawImage(imgGoldEgg, e.x, e.y);
-                    } else{
-                        ctx.drawImage(imgWhiteEgg, e.x, e.y);
-                    }
-                   
-                });
             }
+            
+            
         };
         var keysPressed = {
             left: false,
             right: false,
         };
-        var intervalSpeed = setInterval(function(){
+        var intervalSpeed = setInterval(function () {
             egg.minSpeed += 0.5;
         }, 8000);
         var interval = setInterval(function () {
             egg.createEgg();
         }, 1000);
-        // var intervalGold = setInterval(function () {
-        //     egg.createGoldEgg();
-        // }, 9500);
-        
+
 
 
         // function sound(src) {
@@ -222,7 +230,7 @@ window.onload = function () {
                     player.move(direction);
                 }
             });
-        
+
             backgroundImage.draw();
             player.drawScore();
             backgroundImage.drawChicken();
