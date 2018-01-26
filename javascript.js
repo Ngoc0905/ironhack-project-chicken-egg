@@ -1,7 +1,11 @@
+var audio = new Audio();
+audio.src = './images/musicbackground.mp3';
+
 window.onload = function () {
     var canvas = document.getElementById("canvas");
     canvas.style.display = 'none';
     document.getElementById("start-button").onclick = function () {
+        
         document.getElementById("main").style.display = 'none';
         canvas.style.display = 'block';
         canvas.addEventListener('mousemove', canvasMouseMove, false);
@@ -113,6 +117,7 @@ window.onload = function () {
             gameOver: function () {
                 this.clear();
                 this.drawFinalPoints();
+                audio.pause();
                 this.restartGame();
             }
         };
@@ -220,7 +225,7 @@ window.onload = function () {
                     player.move(direction);
                 }
             });
-
+            
             backgroundImage.draw();
             player.drawScore();
             backgroundImage.drawChicken();
@@ -228,7 +233,7 @@ window.onload = function () {
             egg.draw();
             egg.move();
             player.drawEggBroken();
-
+            audio.play();
 
             requestAnimationFrame(updateCanvas);
         }
