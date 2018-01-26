@@ -4,6 +4,17 @@ window.onload = function () {
     document.getElementById("start-button").onclick = function () {
         document.getElementById("main").style.display = 'none';
         canvas.style.display = 'block';
+        canvas.addEventListener('mousemove', canvasMouseMove, false);
+
+        function canvasMouseMove(evt) {
+            var rectangle = canvas.getBoundingClientRect();
+            var x = evt.clientX - rectangle.left;
+            if (x > canvas.width - player.width) {
+                x = canvas.width - player.width;
+            }
+            player.x = x;
+        }
+
         var ctx = canvas.getContext('2d');
         var img = new Image();
         img.src = "./images/bg.web.png";
@@ -19,8 +30,6 @@ window.onload = function () {
         imgChicken.src = "./images/chicken1.png";
         var imgChicken2 = new Image();
         imgChicken2.src = './images/chicken2.png';
-        // var mySound;
-        // mySound = new sound("bounce.mp3");
         var backgroundImage = {
             img: img,
             x: 0,
@@ -98,6 +107,7 @@ window.onload = function () {
                 setTimeout(function () {
                     document.getElementById('canvas').style.display = 'none';
                     document.getElementById('main').style.display = 'flex';
+                    canvas.removeEventListener('mousemove', canvasMouseMove, false);
                 }, 2000);
             },
             gameOver: function () {
@@ -133,7 +143,9 @@ window.onload = function () {
             },
             draw: function () {
                 this.eggs.forEach(function (e) {
-                    if (e.color === "GoldEgg") {
+                    if (egg.y === canvas.width) {
+                        ctx.drawImage(imgGoldEgg, e.x, e.y);
+                    } else if (e.color === "GoldEgg") {
                         ctx.drawImage(imgGoldEgg, e.x, e.y);
                     } else if (e.color === "BlackEgg") {
                         ctx.drawImage(imgBlackEgg, e.x, e.y);
@@ -151,11 +163,6 @@ window.onload = function () {
             move: function () {
                 this.eggs.forEach(this.moveEgg.bind(this));
             },
-            moveEggFast: function (egg) {
-                egg.y += egg.maxSpeed;
-                if (egg.y >= canvas.height - (player.height / 2) - egg.h)
-                    this.check(egg);
-            },
             check: function (egg) {
                 //miss or caught
                 var caught = player.x + 15 <= egg.x && egg.x <= player.x + player.width - egg.w - 15;
@@ -166,19 +173,19 @@ window.onload = function () {
                         player.score += 3;
                     } else if (egg.color === "BlackEgg") {
                         player.score--;
-                        if (player.score < 0){
-                            player.isGameOver = true;
-                            return 'Game over'; 
-                        }
-                    } 
-                } else {
-                    if (egg.color !== 'BlackEgg') {
-                        player.brokenEggs--;
-                        if ( player.brokenEggs <= 0 ) {
+                        if (player.score < 0) {
                             player.isGameOver = true;
                             return 'Game over';
                         }
-                    } 
+                    }
+                } else {
+                    if (egg.color !== 'BlackEgg') {
+                        player.brokenEggs--;
+                        if (player.brokenEggs <= 0) {
+                            player.isGameOver = true;
+                            return 'Game over';
+                        }
+                    }
                 }
 
                 for (let i = 0; i < this.eggs.length; i++) {
@@ -188,8 +195,8 @@ window.onload = function () {
                     }
                 }
             }
-            
-            
+
+
         };
         var keysPressed = {
             left: false,
@@ -201,23 +208,6 @@ window.onload = function () {
         var interval = setInterval(function () {
             egg.createEgg();
         }, 1000);
-
-
-
-        // function sound(src) {
-        //     this.sound = document.createElement("audio");
-        //     this.sound.src = src;
-        //     this.sound.setAttribute("preload", "auto");
-        //     this.sound.setAttribute("controls", "none");
-        //     this.sound.style.display = "none";
-        //     document.body.appendChild(this.sound);
-        //     this.play = function(){
-        //         this.sound.play();
-        //     }
-        //     this.stop = function(){
-        //         this.sound.pause();
-        //     }
-        // }
 
         function updateCanvas() {
             if (player.isGameOver) {
